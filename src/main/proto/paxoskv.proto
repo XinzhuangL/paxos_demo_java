@@ -1,0 +1,54 @@
+syntax = "proto3";
+package org.lxz.paxoskv;
+
+
+service PaxosKV {
+  rpc Prepare (Proposer) returns (Acceptor) {}
+  rpc Accept (Proposer) returns (Acceptor) {}
+}
+
+// BallotNum is the ballot number in paxos. It consists of amonotonically
+// incremental number and a universally unique ProposerId.
+message BallotNum {
+  int64 N = 1;
+  int64 ProposerId = 2;
+}
+
+// Value is the value part of a key-value record.
+// In this demo it is just a int64
+message Value {
+  int64 Vi64 = 1;
+}
+
+message PaxosInstanceId {
+  // the key of a record to operate on.
+  string key = 1;
+  // the version of the record to modify
+  int64 Ver = 2;
+}
+
+// Acceptor is the state of an Acceptor and also serves as the reply of the
+// Prepare/Accept.
+message Acceptor {
+  // the last ballot number the instance knows of.
+  BallotNum LastBal = 1;
+
+  // the voted value by this Acceptor
+  Value Val = 2;
+
+  // at which ballot number the Acceptor voted it.
+  BallotNum VBal = 3;
+}
+
+// Proposer is the state of a Proposer and also serves as the request of
+// Prepare/Accept
+message Proposer {
+  // what paxos instance it runs on
+  PaxosInstanceId Id = 1;
+
+  // Bal is the ballot number of a Proposer
+  BallotNum Bal = 2;
+
+  // Val is the value a Proposer has chosen.
+  Value Val = 3;
+}
